@@ -1,5 +1,5 @@
 {
-  "name": "OG Star Tracker v2.2",
+  "name": "OG Star Tracker v2.1",
   "version": "2.1",
   "builds": [
     {
@@ -21,4 +21,3 @@
     }
   ]
 }
-

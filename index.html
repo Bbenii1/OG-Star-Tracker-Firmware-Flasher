@@ -439,12 +439,12 @@
             <h1>Firmware Version</h1>
 
                 <h3 id="version-select-label">Select version:</h3>
-                <select id="version-select" onchange="changeVersion()">
-                    <option value="v2.2">Beni's custom version 2.1 (beta)</option>
+                <select id="version-select" onclick="changeVersion()">
+                    <option value="v2.1">Beni's custom version 2.1 (beta)</option>
                 </select>
 
                 <div id="install-button-container">
-                    <esp-web-install-button id="install-button" manifest="v2.0/manifest.json" >
+                    <esp-web-install-button id="install-button" onclick="changeVersion()" >
                     </esp-web-install-button>
                 </div>
       
