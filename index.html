@@ -149,6 +149,10 @@
         margin: 10px 0;
     }
 
+    a {
+        color: var(--secondary-text);
+    }
+
     /* Responsive typography */
     @media (min-width: 480px) {
         h1 {
@@ -303,42 +307,30 @@
         width: 100%;
     }
 
-    .disclaimer-card {
-        background-color: #000000;
-        padding: 16px;
-        border-radius: 32px;
-        margin-top: 20px;
-        border: 1px solid #3a0000;
-        box-shadow:
-            inset -3px -3px 4px rgba(177, 0, 0, 0.9),
-            inset 3px 3px 4px rgba(177, 0, 0, 0.9),
-            inset 3px -3px 4px rgba(80, 0, 0, 0.5),
-            inset -3px 3px 4px rgba(80, 0, 0, 0.5);
-    }
-
-    .disclaimer-card h2 {
-        color: var(--text);
-        margin-bottom: 10px;
-    }
-
-    .disclaimer-card .wifi-info {
+    .info {
         margin: 12px 0;
         padding: 12px;
         background-color: rgba(177, 0, 0, 0.1);
         border-radius: 8px;
         border: 1px solid var(--border);
         box-sizing: border-box;
+        text-align: left;
+    }
+
+    .info strong {
+        display: inline-block;
+        width: 200px;
     }
 
     /* Responsive wifi info */
     @media (min-width: 768px) {
-        .disclaimer-card .wifi-info {
+        .info {
             margin: 15px 0;
             padding: 10px;
         }
     }
 
-    .disclaimer-card .wifi-info strong {
+    .info strong {
         color: var(--secondary-text);
     }
 
@@ -353,15 +345,24 @@
             <h1>Firmware Version</h1>
 
                 <h3 id="version-select-label">Select version:</h3>
-                <select id="version-select" onclick="changeVersion()">
-                    <option value="v2.1">Beni's custom version 2.1 (beta)</option>
+                <select id="version-select" onchange="changeVersion()">
                 </select>
 
                 <div id="install-button-container">
-                    <esp-web-install-button id="install-button" onclick="changeVersion()" >
+                    <esp-web-install-button id="install-button">
                     </esp-web-install-button>
                 </div>
       
+        </div>
+
+        <div class="card" id="version-details-card" style="display: none;">
+            <h2>Version Details</h2>
+            <div id="version-details-content" class="info">
+                <!-- Content injected by JavaScript -->
+            </div>
+            <p style="font-size: 14px; color: var(--secondary-text); margin-top: 10px;">
+                After flashing, the device will create a WiFi access point with these credentials.
+            </p>
         </div>
 
         <div class="card">
@@ -376,43 +377,96 @@
             </p>
         </div>
 
-        <div class="card disclaimer-card">
-            <h2>WiFi Configuration</h2>
-            <div class="wifi-info">
-                <p><strong>SSID:</strong> OG Star Tracker</p>
-                <p><strong>Password:</strong> password123</p>
-            </div>
-            <p style="font-size: 14px; color: var(--secondary-text); margin-top: 10px;">
-                After flashing, the device will create a WiFi access point with these credentials.
-            </p>
-        </div>
-
         <div class="card">
             <h2>Coming Soon</h2>
             
             <p style="color: var(--secondary-text); margin-top: 10px;">
-                - more versions to choose from
+                something for sure
             </p>
+        </div>
+
+        <div class="card">
+            <h2>Contact</h2>
+            If you noticed any issues with the firmware, please contact me or submit an issue in this <a target="_blank" href="https://github.com/Bbenii1/OG-Star-tracker-Software">repository</a>.
         </div>
     </div>
 
     <script>
-        function changeVersion() {
+        const firmwareVersions = [
+            {
+                name: "OG Star Tracker v2.2 (0.9deg, north)",
+                manifest: "versions/ogstartracker_v2.2_0.9deg_north/ogstartracker_v2.2_0.9deg_north.json"
+            },
+            {
+                name: "OG Star Tracker v2.2 (0.9deg, south)",
+                manifest: "versions/ogstartracker_v2.2_0.9deg_south/ogstartracker_v2.2_0.9deg_south.json"
+            },
+            {
+                name: "OG Star Tracker v2.2 (1.8deg, north)",
+                manifest: "versions/ogstartracker_v2.2_1.8deg_north/ogstartracker_v2.2_1.8deg_north.json"
+            },
+            {
+                name: "OG Star Tracker v2.2 (1.8deg, south)",
+                manifest: "versions/ogstartracker_v2.2_1.8deg_south/ogstartracker_v2.2_1.8deg_south.json"
+            },
+        ];
+
+        function populateVersions() {
+            const select = document.getElementById('version-select');
+            select.innerHTML = '';
+            firmwareVersions.forEach(v => {
+                const option = document.createElement('option');
+                option.value = v.manifest;
+                option.textContent = v.name;
+                select.appendChild(option);
+            });
+            changeVersion();
+        }
+
+        async function changeVersion() {
             const versionSelect = document.getElementById('version-select');
-            const selectedVersion = versionSelect.value;
-            const installButton = document.getElementById('install-button');
+            const selectedManifest = versionSelect.value;
             
-            // Update the manifest path
-            installButton.setAttribute('manifest', selectedVersion + '/manifest.json');
-            
-            // Remove and recreate the button to force reload
             const container = document.getElementById('install-button-container');
             container.innerHTML = '';
             const newButton = document.createElement('esp-web-install-button');
             newButton.id = 'install-button';
-            newButton.setAttribute('manifest', selectedVersion + '/manifest.json');
+            newButton.setAttribute('manifest', selectedManifest);
             container.appendChild(newButton);
+
+            try {
+                const response = await fetch(selectedManifest);
+                if (response.ok) {
+                    const data = await response.json();
+                    const detailsCard = document.getElementById('version-details-card');
+                    const detailsContent = document.getElementById('version-details-content');
+                    
+                    let dateStr = "N/A";
+                    if (data.build_date) {
+                        const d = new Date(data.build_date);
+                        dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+                    }
+                    
+                    detailsContent.innerHTML = `
+                        <p><strong>Name:</strong>${data.name || 'N/A'} (${data.build_type || 'N/A'})</p>
+                        <p><strong>Firmware version:</strong>${data.firmware_version || 'N/A'}</p>
+                        <p><strong>Interface version:</strong>${data.interface_version || 'N/A'}</p>
+                        <p><strong>Stepper:</strong>${data.stepper_type || 'N/A'}</p>
+                        <p><strong>Hemisphere:</strong>${data.hemisphere || 'N/A'}</p>
+                        <p><strong>Wifi mode:</strong>${data.wifi_mode || 'N/A'}</p>
+                        <p><strong>Wifi ssid:</strong>${data.wifi_ssid || 'N/A'}</p>
+                        <p><strong>Wifi password:</strong>${data.wifi_password || 'N/A'}</p>
+                        <p><strong>Local site:</strong>${data.mdns_name}.local</p>                
+                    `;
+                    detailsCard.style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Error fetching manifest details:", error);
+                document.getElementById('version-details-card').style.display = 'none';
+            }
         }
+
+        window.addEventListener('DOMContentLoaded', populateVersions);
     </script>
 </body>
 </html>

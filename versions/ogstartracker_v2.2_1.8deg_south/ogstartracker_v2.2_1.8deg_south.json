@@ -1,0 +1,34 @@
+{
+  "name": "OG Star Tracker",
+  "firmware_version": "2.2",
+  "interface_version": "2.1",
+  "stepper_type": "1.8deg",
+  "hemisphere": "south",
+  "wifi_mode": "AP",
+  "wifi_ssid": "OG Star Tracker",
+  "wifi_password": "password123",
+  "mdns_name": "tracker",
+  "webserver_port": 80,
+  "build_date": "2026-04-02T11:09:57Z",
+  "build_type": "release",
+  "binary_name": "ogstartracker_v2.2_1.8deg_south",
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        {
+          "path": "bootloader.bin",
+          "offset": 4096
+        },
+        {
+          "path": "partitions.bin",
+          "offset": 32768
+        },
+        {
+          "path": "ogstartracker_v2.2_1.8deg_south.bin",
+          "offset": 65536
+        }
+      ]
+    }
+  ]
+}
