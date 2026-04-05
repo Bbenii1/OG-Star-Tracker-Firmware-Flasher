@@ -9,7 +9,7 @@
   "wifi_password": "password123",
   "mdns_name": "tracker",
   "webserver_port": 80,
-  "build_date": "2026-04-02T11:09:41Z",
+  "build_date": "2026-04-05T21:40:59Z",
   "build_type": "release",
   "binary_name": "ogstartracker_v2.2_1.8deg_north",
   "builds": [
